@@ -5,6 +5,16 @@ import path from 'path';
 import { URL, fileURLToPath } from 'url';
 import chalk from 'chalk';
 
+const download = async (url, destination) => {
+    const response = await axios({ method: 'get', url: url, responseType: 'stream' });
+    await new Promise((resolve, reject) => {
+      const writer = fs.createWriteStream(destination);
+      response.data.pipe(writer);
+      writer.on('finish', resolve);
+      writer.on('error', reject);
+    });
+  };
+
 const saveAll = async (page) => {
   try {
     const { data: html } = await axios.get(page);
@@ -29,9 +39,9 @@ const saveAll = async (page) => {
     
     await Promise.all(links.map(async (file) => {
       const fileName = decodeURIComponent(path.basename(new URL(file).pathname).replace(/%20/g, ' '));
-      const path = path.join(downloadsFolder, fileName);
+      const filePath = path.join(downloadsFolder, fileName);
       console.log(chalk.cyan(`Downloading: ${fileName}`));
-      await download(file, path);
+      await download(file, filePath);
     }));
     console.log(chalk.green('All PDFs downloaded.'));
     process.exit();
@@ -41,15 +51,6 @@ const saveAll = async (page) => {
   }
 };
 
-const download = async (url, destination) => {
-    const response = await axios({ method: 'get', url: url, responseType: 'stream' });
-    await new Promise((resolve, reject) => {
-      const writer = fs.createWriteStream(destination);
-      response.data.pipe(writer);
-      writer.on('finish', resolve);
-      writer.on('error', reject);
-    });
-  };
 
 saveAll('https://www.physicsandmathstutor.com/physics-revision/igcse-cie/general-physics/');
 // Use any PMT link here.
