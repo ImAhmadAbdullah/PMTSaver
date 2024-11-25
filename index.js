@@ -42,6 +42,7 @@ const saveAll = async (page) => {
       const filePath = path.join(downloadsFolder, fileName);
       console.log(chalk.cyan(`Downloading: ${fileName}`));
       await download(file, filePath);
+      console.log(chalk.yellow(`Downloaded: ${fileName}`));
     }));
     console.log(chalk.green('All PDFs downloaded.'));
     process.exit();
